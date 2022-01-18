@@ -1,5 +1,5 @@
 [package]
-name = "feather_tnt_run_demo"
+name = "feather_tnt_run"
 version = "0.1.0"
 edition = "2021"
 
