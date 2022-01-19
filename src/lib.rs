@@ -1,5 +1,3 @@
-use std::collections::vec_deque::VecDeque;
-
 use libcraft_core::{vec3, EntityKind};
 use quill::components::Name;
 use quill::entities::{Player, Tnt};
@@ -9,6 +7,7 @@ use quill::{
     Setup, TextComponent, TextComponentBuilder, Title,
 };
 use rand::Rng;
+use std::collections::vec_deque::VecDeque;
 
 const PREPARATION_TIME: usize = 5;
 const RESULTS_TIME: usize = 5;
@@ -24,7 +23,7 @@ const SPAWN_CENTER: Position = Position {
 };
 const SPAWN_RADIUS: f64 = 10.0;
 const LAYER_RADIUS: usize = 15;
-const LAYERS: &[i32] = &[20, 15, 10]; 
+const LAYERS: &[i32] = &[20, 15, 10];
 const BLOCK_STATE_ID: u16 = 1430;
 const SPECTATOR_SPAWN_POINT: Position = Position {
     x: 0.0,
@@ -55,9 +54,7 @@ impl Plugin for TntRun {
             .add_system(lose_system)
             .add_system(winner_system);
         TntRun {
-            state: TntRunState::Waiting {
-                countdown: 0,
-            },
+            state: TntRunState::Waiting { countdown: 0 },
             tick_counter: 0,
         }
     }
@@ -168,10 +165,15 @@ fn remove_offline_players_system(plugin: &mut TntRun, game: &mut Game) {
 
 fn block_queue_system(plugin: &mut TntRun, game: &mut Game) {
     if let TntRunState::Playing {
-        block_fall_queue, ..
+        block_fall_queue,
+        players,
+        ..
     } = &mut plugin.state
     {
-        for (_player, (_, position)) in game.query::<(&Player, &Position)>() {
+        for (player, (_, position)) in game.query::<(&Player, &Position)>() {
+            if !players.contains(&player.id()) {
+                continue;
+            }
             let pos1 = position
                 + vec3(
                     EntityKind::Player.bounding_box().into_rect3().w / 2.0,
@@ -198,7 +200,9 @@ fn block_queue_system(plugin: &mut TntRun, game: &mut Game) {
                 );
             for position in [pos1, pos2, pos3, pos4] {
                 let block_pos = position.block().down();
-                if game.block(block_pos).map_or(false, |block| block.id() == BLOCK_STATE_ID)
+                if game
+                    .block(block_pos)
+                    .map_or(false, |block| block.id() == BLOCK_STATE_ID)
                     && block_fall_queue
                         .iter()
                         .rfind(|(_, pos)| *pos == block_pos)
@@ -351,7 +355,7 @@ fn regenerate_arena(game: &Game) {
                     BlockPosition::new(x, *layer_y, z),
                     BlockState::from_id(BLOCK_STATE_ID).unwrap(),
                 )
-                    .unwrap();
+                .unwrap();
             }
         }
     }
