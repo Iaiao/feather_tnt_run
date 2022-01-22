@@ -33,8 +33,7 @@ const SPECTATOR_SPAWN_POINT: Position = Position {
     yaw: 90.0,
 };
 
-quill::plugin!(TntRun);
-
+#[quill::plugin]
 struct TntRun {
     state: TntRunState,
     tick_counter: usize,
