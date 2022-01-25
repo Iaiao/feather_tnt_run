@@ -7,8 +7,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-quill = { path = "../feather/quill/api" }
-# Requires some feather#522, #521, #520, #519 and #518 to be merged
-# quill = { git = "https://github.com/feather-rs/feather" }
+quill = { git = "https://github.com/feather-rs/feather" }
 libcraft-core = { git = "https://github.com/feather-rs/feather" }
 rand = "0.8.4"
